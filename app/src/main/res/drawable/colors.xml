@@ -1,0 +1,7 @@
+<!-- res/values/colors.xml -->
+<resources>
+    <color name="color1">#FF0000</color> <!-- Vermelho -->
+    <color name="color2">#00FF00</color> <!-- Verde -->
+    <color name="color3">#0000FF</color> <!-- Azul -->
+    <color name="color4">#FFFF00</color> <!-- Amarelo -->
+</resources>
