@@ -9,6 +9,15 @@ import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
+
+// Deus Amor Luz Caridade bondade elevação vibratória verdade Reiki
+// Que todas as pessoas que usarem esse aplicativo obtenham comunicaçoes verdadeiras com bons espíritos benevolentes e positivos!
+// Mentora Rosângela Alves Azevedo - Mentor 5421John - Caboclo Pena Branca - Pai José de Aruanda -
+// Que energias positivas percorra esse aplicativo continuamente favorecendo contatos espirituais ostensivos e verdadeiros com mentores amparadores da luz e bons espíritos!
+// Que cada trecho desses códigos seja impregnado com boas eneergias favorecendo o amparo, o amor, e os contatos espirituais verdadeiros com os bons espíritos!
+// Om Mani Padme Hum - Reiki Amor Luz Bondade Verdade Cosmoética Verdadeiros Amparadores!
+// Que Deus abençoe todas as pessoas que usarem esse aplicativo com muita saúde, felicidade, caminhos abertos, muito amor, boas energias e tudo de bom, em harmonia com o bem maior!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,3 +43,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
+
+// Deus Amor Luz Caridade bondade elevação vibratória verdade Reiki
+// Que todas as pessoas que usarem esse aplicativo obtenham comunicaçoes verdadeiras com bons espíritos benevolentes e positivos!
+// Mentora Rosângela Alves Azevedo - Mentor 5421John - Caboclo Pena Branca - Pai José de Aruanda -
+// Que energias positivas percorra esse aplicativo continuamente favorecendo contatos espirituais ostensivos e verdadeiros com mentores amparadores da luz e bons espíritos!
+// Que cada trecho desses códigos seja impregnado com boas eneergias favorecendo o amparo, o amor, e os contatos espirituais verdadeiros com os bons espíritos!
+// Om Mani Padme Hum - Reiki Amor Luz Bondade Verdade Cosmoética Verdadeiros Amparadores!
+// Que Deus abençoe todas as pessoas que usarem esse aplicativo com muita saúde, felicidade, caminhos abertos, muito amor, boas energias e tudo de bom, em harmonia com o bem maior!

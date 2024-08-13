@@ -2,4 +2,10 @@
     <string name="app_name">Spirit Box Brasil</string>
     <string name="background_image_desc">Descrição da imagem de fundo</string>
     <string name="start_button_desc">Descrição do botão de início</string>
+
+    <string-array name="gender_options">
+        <item>Padrão</item>
+        <item>Masculino</item>
+        <item>Feminino</item>
+    </string-array>
 </resources>

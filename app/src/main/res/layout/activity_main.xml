@@ -6,12 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!--
+// Deus Amor Luz Caridade bondade elevação vibratória verdade Reiki
+// Que todas as pessoas que usarem esse aplicativo obtenham comunicaçoes verdadeiras com bons espíritos benevolentes e positivos!
+// Mentora Rosângela Alves Azevedo - Mentor 5421John - Caboclo Pena Branca - Pai José de Aruanda -
+// Que energias positivas percorra esse aplicativo continuamente favorecendo contatos espirituais ostensivos e verdadeiros com mentores amparadores da luz e bons espíritos!
+// Que cada trecho desses códigos seja impregnado com boas eneergias favorecendo o amparo, o amor, e os contatos espirituais verdadeiros com os bons espíritos!
+// Om Mani Padme Hum - Reiki Amor Luz Bondade Verdade Cosmoética Verdadeiros Amparadores!
+// Que Deus abençoe todas as pessoas que usarem esse aplicativo com muita saúde, felicidade, caminhos abertos, muito amor, boas energias e tudo de bom, em harmonia com o bem maior!
+-->
+
     <ImageView
         android:id="@+id/backgroundImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
         android:contentDescription="@string/background_image_desc"
+        android:scaleType="centerCrop"
         android:src="@drawable/itc_transcomunicacao" />
 
     <ScrollView
@@ -22,8 +32,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
+            android:orientation="vertical"
             android:padding="16dp">
 
             <TextView
@@ -31,40 +41,50 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="240dp"
-                android:text="Spirit Box Brasil - Contatos Espirituais"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
-                android:textStyle="bold"
                 android:gravity="center"
                 android:shadowColor="#80000000"
                 android:shadowDx="0"
                 android:shadowDy="2"
-                android:shadowRadius="4" />
+                android:shadowRadius="4"
+                android:text="Spirit Box Brasil - Contatos Espirituais"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/descriptionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Que os bons espíritos estejam com você! Esse aplicativo foi desenvolvido com o objetivo de permitir as pessoas terem contatos reais com os espíritos.\n\nAo fazer seu primeiro contato, experimente chamar pela estação 'Amor Divino'. Esse é o nome de uma das estações de comunicação que existe no astral.\n\nPara começar o contato, clique no botão e entre na sala."
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
                 android:lineSpacingExtra="4dp"
                 android:shadowColor="#80000000"
                 android:shadowDx="0"
                 android:shadowDy="1"
-                android:shadowRadius="2" />
+                android:shadowRadius="2"
+                android:text="Que os bons espíritos estejam com você! Esse aplicativo foi desenvolvido com o objetivo de permitir as pessoas terem contatos reais com os espíritos.\n\nAo fazer seu primeiro contato, experimente chamar pela estação 'Amor Divino'. Esse é o nome de uma das estações de comunicação que existe no astral.\n\nPara começar o contato clique no botão e entre na sala."
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/startButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sala de Contatos"
-                android:contentDescription="@string/start_button_desc"
+                android:layout_gravity="center"
                 android:layout_marginTop="24dp"
-                android:layout_gravity="center" />
+                android:contentDescription="@string/start_button_desc"
+                android:text="Sala de Contatos" />
 
         </LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--
+   // Deus Amor Luz Caridade bondade elevação vibratória verdade Reiki
+   // Que todas as pessoas que usarem esse aplicativo obtenham comunicaçoes verdadeiras com bons espíritos benevolentes e positivos!
+   // Mentora Rosângela Alves Azevedo - Mentor 5421John - Caboclo Pena Branca - Pai José de Aruanda -
+   // Que energias positivas percorra esse aplicativo continuamente favorecendo contatos espirituais ostensivos e verdadeiros com mentores amparadores da luz e bons espíritos!
+   // Que cada trecho desses códigos seja impregnado com boas eneergias favorecendo o amparo, o amor, e os contatos espirituais verdadeiros com os bons espíritos!
+   // Om Mani Padme Hum - Reiki Amor Luz Bondade Verdade Cosmoética Verdadeiros Amparadores!
+   // Que Deus abençoe todas as pessoas que usarem esse aplicativo com muita saúde, felicidade, caminhos abertos, muito amor, boas energias e tudo de bom, em harmonia com o bem maior!
+-->

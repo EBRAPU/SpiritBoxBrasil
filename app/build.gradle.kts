@@ -11,8 +11,8 @@ android {
         applicationId = "com.ebrapu.spiritboxbrasil"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3 // Atualize para o próximo número inteiro
-        versionName = "3.0" // Atualize para a nova versão visível
+        versionCode = 5 // Atualize para o próximo número inteiro
+        versionName = "3.2" // Atualize para a nova versão visível
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -46,4 +46,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // ExoPlayer
+    implementation("com.google.android.exoplayer:exoplayer-core:2.18.1") // Use a versão mais recente
+
+
 }

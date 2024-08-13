@@ -33,6 +33,11 @@
             android:name=".ContatosActivity"
             android:exported="true"/>
 
+        <!-- Declaração da FilesActivity -->
+        <activity
+            android:name=".FilesActivity"
+            android:exported="true"/>
+
     </application>
 
 </manifest>
