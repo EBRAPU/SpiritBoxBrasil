@@ -5,7 +5,11 @@
 
     <string-array name="gender_options">
         <item>Padrão</item>
-        <item>Masculino</item>
-        <item>Feminino</item>
+        <item>Feminino1</item>
+        <item>Masculino1</item>
+        <item>Feminino2</item>
+        <item>Masculino2</item>
+
+
     </string-array>
 </resources>

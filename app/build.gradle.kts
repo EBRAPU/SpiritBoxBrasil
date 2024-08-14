@@ -50,5 +50,6 @@ dependencies {
     // ExoPlayer
     implementation("com.google.android.exoplayer:exoplayer-core:2.18.1") // Use a versão mais recente
 
-
+    // Adicione a dependência do NotificationCompat
+    implementation("androidx.core:core:1.9.0") // Use a versão mais recente disponível
 }
