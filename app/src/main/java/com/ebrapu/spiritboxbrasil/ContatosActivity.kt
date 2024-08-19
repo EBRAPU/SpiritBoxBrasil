@@ -7,6 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.AudioTrack
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.media.PlaybackParams
@@ -14,6 +17,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -26,6 +30,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.view.WindowManager
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.SeekBar
 import java.io.File
 import java.io.IOException
 import kotlin.random.Random
@@ -33,6 +40,9 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 class ContatosActivity : AppCompatActivity() {
 
@@ -46,6 +56,11 @@ class ContatosActivity : AppCompatActivity() {
     private val maxFemaleFiles = 4677
     private val maxFemaleFiles2 = 4410
     private val maxMaleFiles2 = 4000
+    // Definindo as novas variáveis
+    private val maxMaleReverbFiles = 2248
+    private val maxMaleEcoFiles = 2270
+    private val maxFemaleReverbFiles = 2220
+    private val maxFemaleEcoFiles = 2220
 
     private var isPlaying1 = false
     private var isPlaying2 = false
@@ -57,7 +72,20 @@ class ContatosActivity : AppCompatActivity() {
     private lateinit var genderSpinner1: Spinner
     private lateinit var genderSpinner2: Spinner
 
+    private lateinit var rotatingImageView: ImageView
+    private var rotationAnimation: Animation? = null
+
     private val RECORD_REQUEST_CODE = 101
+
+    private val isEcoOn = AtomicBoolean(false)
+    private var audioThread: Thread? = null
+
+    private val volumeFactorAtomic = AtomicReference(0.5f)
+    private val delayBufferSize = AtomicInteger(44100)
+
+    private lateinit var audioRecord: AudioRecord
+    private lateinit var audioTrack: AudioTrack
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +96,42 @@ class ContatosActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val volumeSeekBar: SeekBar = findViewById(R.id.volumeSeekBar)
+        val delaySeekBar: SeekBar = findViewById(R.id.delaySeekBar)
+
+        volumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                volumeFactorAtomic.set(progress / 100f)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        delaySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                delayBufferSize.set(44100 * progress / 1000)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        val ecoButton: Button = findViewById(R.id.ecoButton)
+        ecoButton.setOnClickListener {
+            if (isEcoOn.get()) {
+                stopEcho()
+                ecoButton.text = "ECO OFF"
+            } else {
+                startEcho()
+                ecoButton.text = "ECO ON"
+            }
+        }
+
+
+        // Inicializar o ImageView e a animação
+        rotatingImageView = findViewById(R.id.rotatingImage)
+        rotationAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_animation)
+
 
         // Mantenha a tela ligada enquanto a atividade estiver visível
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -93,6 +157,11 @@ class ContatosActivity : AppCompatActivity() {
             playRandomAudio(true)
             conectarButton1.visibility = View.GONE
             desconectarButton1.visibility = View.VISIBLE
+
+            // Iniciar animação
+            updateImageVisibility() // Atualizar a visibilidade da imagem
+            rotatingImageView.visibility = View.VISIBLE
+            rotatingImageView.startAnimation(rotationAnimation)
         }
 
         desconectarButton1.setOnClickListener {
@@ -100,6 +169,11 @@ class ContatosActivity : AppCompatActivity() {
             mediaPlayer1?.stop()
             desconectarButton1.visibility = View.GONE
             conectarButton1.visibility = View.VISIBLE
+
+            // Parar animação
+            updateImageVisibility() // Atualizar a visibilidade da imagem
+            rotatingImageView.clearAnimation()
+            rotatingImageView.visibility = View.GONE
         }
 
         speedUpButton1.setOnClickListener {
@@ -133,6 +207,11 @@ class ContatosActivity : AppCompatActivity() {
             playRandomAudio(false)
             conectarButton2.visibility = View.GONE
             desconectarButton2.visibility = View.VISIBLE
+
+            // Iniciar animação
+            updateImageVisibility() // Atualizar a visibilidade da imagem
+            rotatingImageView.visibility = View.VISIBLE
+            rotatingImageView.startAnimation(rotationAnimation)
         }
 
         desconectarButton2.setOnClickListener {
@@ -140,6 +219,11 @@ class ContatosActivity : AppCompatActivity() {
             mediaPlayer2?.stop()
             desconectarButton2.visibility = View.GONE
             conectarButton2.visibility = View.VISIBLE
+
+            // Parar animação
+            updateImageVisibility() // Atualizar a visibilidade da imagem
+            rotatingImageView.clearAnimation()
+            rotatingImageView.visibility = View.GONE
         }
 
         speedUpButton2.setOnClickListener {
@@ -222,6 +306,20 @@ class ContatosActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateImageVisibility() {
+        if (!isPlaying1 && !isPlaying2) {
+            // Parar animação e esconder a imagem
+            rotatingImageView.clearAnimation()
+            rotatingImageView.visibility = View.GONE
+        } else {
+            // Iniciar animação e mostrar a imagem
+            if (rotatingImageView.visibility != View.VISIBLE) {
+                rotatingImageView.visibility = View.VISIBLE
+                rotatingImageView.startAnimation(rotationAnimation)
+            }
+        }
+    }
+
     private fun stopRecording() {
         mediaRecorder?.apply {
             try {
@@ -243,6 +341,10 @@ class ContatosActivity : AppCompatActivity() {
             val (startIndex, endIndex) = when (selectedGender) {
                 "Masculino2" -> 1 to maxMaleFiles2
                 "Feminino2" -> 1 to maxFemaleFiles2
+                "MasculinoReverb" -> 1 to maxMaleReverbFiles
+                "FemininoReverb" -> 1 to maxFemaleReverbFiles
+                "MasculinoEco" -> 1 to maxMaleEcoFiles
+                "FemininoEco" -> 1 to maxFemaleEcoFiles
                 "Masculino1" -> 1 to maxMaleFiles
                 "Feminino1" -> 1 to maxFemaleFiles
                 "Padrão" -> 1 to (maxMaleFiles + maxFemaleFiles)
@@ -252,6 +354,10 @@ class ContatosActivity : AppCompatActivity() {
             val randomAudioFile = when (selectedGender) {
                 "Masculino2" -> "masculino2deusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Feminino2" -> "feminino2deusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "MasculinoReverb" -> "masculinoreverbdeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "FemininoReverb" -> "femininoreverbdeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "MasculinoEco" -> "masculinoecodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "FemininoEco" -> "femininoecodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Masculino1" -> "masculinodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Feminino1" -> "femininodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Padrão" -> {
@@ -276,6 +382,7 @@ class ContatosActivity : AppCompatActivity() {
                 setOnCompletionListener {
                     it.release()
                     if (isPlaying1) playRandomAudio(isCanal1)
+                    updateImageVisibility() // Atualizar a visibilidade da imagem
                 }
             }
             mediaPlayer1?.start()
@@ -287,6 +394,10 @@ class ContatosActivity : AppCompatActivity() {
             val (startIndex, endIndex) = when (selectedGender) {
                 "Masculino2" -> 1 to maxMaleFiles2
                 "Feminino2" -> 1 to maxFemaleFiles2
+                "MasculinoReverb" -> 1 to maxMaleReverbFiles
+                "FemininoReverb" -> 1 to maxFemaleReverbFiles
+                "MasculinoEco" -> 1 to maxMaleEcoFiles
+                "FemininoEco" -> 1 to maxFemaleEcoFiles
                 "Masculino1" -> 1 to maxMaleFiles
                 "Feminino1" -> 1 to maxFemaleFiles
                 "Padrão" -> 1 to (maxMaleFiles + maxFemaleFiles)
@@ -296,6 +407,10 @@ class ContatosActivity : AppCompatActivity() {
             val randomAudioFile = when (selectedGender) {
                 "Masculino2" -> "masculino2deusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Feminino2" -> "feminino2deusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "MasculinoReverb" -> "masculinoreverbdeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "FemininoReverb" -> "femininoreverbdeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "MasculinoEco" -> "masculinoecodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
+                "FemininoEco" -> "femininoecodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Masculino1" -> "masculinodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Feminino1" -> "femininodeusluzamormentoresdaluz${(startIndex..endIndex).random()}"
                 "Padrão" -> {
@@ -320,11 +435,13 @@ class ContatosActivity : AppCompatActivity() {
                 setOnCompletionListener {
                     it.release()
                     if (isPlaying2) playRandomAudio(isCanal1)
+                    updateImageVisibility() // Atualizar a visibilidade da imagem
                 }
             }
             mediaPlayer2?.start()
         }
     }
+
 
     private fun setPlaybackSpeed(mediaPlayer: MediaPlayer, speed: Float) {
         mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(speed)
@@ -335,15 +452,11 @@ class ContatosActivity : AppCompatActivity() {
         speedTextView2.text = String.format(": %.2f", playbackSpeed2)
     }
 
+    //Modifique o método checkPermissions para chamar initializeAudio() quando as permissões forem concedidas
+
     private fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 this, arrayOf(
@@ -351,27 +464,112 @@ class ContatosActivity : AppCompatActivity() {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 ), RECORD_REQUEST_CODE
             )
+        } else {
+            initializeAudio()
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    // Modifique onRequestPermissionsResult para chamar initializeAudio() quando as permissões forem concedidas
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == RECORD_REQUEST_CODE) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initializeAudio()
+            } else {
                 // Permissão negada
             }
         }
     }
+
+
+    private fun initializeAudio() {
+        val bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                audioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize)
+                audioTrack = AudioTrack.Builder()
+                    .setAudioFormat(AudioFormat.Builder()
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(44100)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build())
+                    .setBufferSizeInBytes(bufferSize)
+                    .build()
+            } catch (e: SecurityException) {
+                Log.e("EchoApp", "Permissão de áudio não concedida", e)
+            }
+        }
+    }
+
+    private fun startEcho() {
+        if (isEcoOn.compareAndSet(false, true)) {
+            try {
+                audioRecord.startRecording()
+                audioTrack.play()
+
+                audioThread = Thread {
+                    val buffer = ShortArray(AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT))
+                    val circularBuffer = CircularBuffer(delayBufferSize.get())
+
+                    while (isEcoOn.get()) {
+                        val read = audioRecord.read(buffer, 0, buffer.size)
+                        for (i in 0 until read) {
+                            val delayedSample = circularBuffer.read()
+                            val newSample = (buffer[i].toInt() + (delayedSample * volumeFactorAtomic.get()).toInt()).toShort()
+                            circularBuffer.write(buffer[i])
+                            buffer[i] = newSample
+                        }
+                        audioTrack.write(buffer, 0, read)
+                    }
+
+                    audioRecord.stop()
+                    audioTrack.stop()
+                }
+                audioThread?.start()
+            } catch (e: IllegalStateException) {
+                Log.e("EchoApp", "Erro ao iniciar o eco", e)
+                isEcoOn.set(false)
+            }
+        }
+    }
+
+
+    private fun stopEcho() {
+        if (isEcoOn.compareAndSet(true, false)) {
+            audioThread?.join()
+        }
+    }
+
+    private class CircularBuffer(private val size: Int) {
+        private val buffer = ShortArray(size)
+        private var writeIndex = 0
+        private var readIndex = 0
+
+        fun write(value: Short) {
+            buffer[writeIndex] = value
+            writeIndex = (writeIndex + 1) % size
+        }
+
+        fun read(): Short {
+            val value = buffer[readIndex]
+            readIndex = (readIndex + 1) % size
+            return value
+        }
+    }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer1?.release()
         mediaPlayer2?.release()
         mediaRecorder?.release()
-        stopService(Intent(this, MyForegroundService::class.java)) // Parar o serviço
+        stopEcho()
+        audioRecord.release()
+        audioTrack.release()
+        stopService(Intent(this, MyForegroundService::class.java))
     }
+
 }

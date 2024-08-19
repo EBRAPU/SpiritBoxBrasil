@@ -7,8 +7,16 @@
         <item>Padrão</item>
         <item>Feminino1</item>
         <item>Masculino1</item>
+        <item>FemininoEco</item>
+        <item>MasculinoEco</item>
+        <item>FemininoReverb</item>
+        <item>MasculinoReverb</item>
         <item>Feminino2</item>
         <item>Masculino2</item>
+
+
+
+
 
 
     </string-array>

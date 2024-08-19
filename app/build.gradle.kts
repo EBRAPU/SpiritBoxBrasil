@@ -11,8 +11,8 @@ android {
         applicationId = "com.ebrapu.spiritboxbrasil"
         minSdk = 24
         targetSdk = 34
-        versionCode = 5 // Atualize para o próximo número inteiro
-        versionName = "3.2" // Atualize para a nova versão visível
+        versionCode = 6 // Atualize para o próximo número inteiro
+        versionName = "3.3" // Atualize para a nova versão visível
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
