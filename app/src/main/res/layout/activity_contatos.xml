@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".ContatosActivity">
 
-
     <ImageView
         android:id="@+id/backgroundImage"
         android:layout_width="match_parent"
@@ -27,9 +26,9 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -172,17 +171,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/selectGenderLabel1" />
 
-            <!-- Botão AUTO OFF Canal 1
-            <Button
-                android:id="@+id/autoSpeedButton1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AUTO OFF"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/genderSpinner1" />
-            -->
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -309,110 +297,138 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/selectGenderLabel2" />
 
-            <!-- Botão AUTO OFF Canal 2
-            <Button
-                android:id="@+id/autoSpeedButton2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AUTO OFF"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/genderSpinner2" />
-                -->
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Novo botão de Gravação -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/ecoControls"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        app:cardBackgroundColor="@android:color/white"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        app:layout_constraintTop_toBottomOf="@+id/canal2"
+    <!-- Container para controles do eco -->
+    <FrameLayout
+        android:id="@+id/ecoControlsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/canal2">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.cardview.widget.CardView
+            android:id="@+id/ecoControls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
 
-            <TextView
-                android:id="@+id/controlsTitle"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Controles"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:padding="16dp">
 
-            <Button
-                android:id="@+id/ecoButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ECO OFF"
-                app:layout_constraintTop_toBottomOf="@id/controlsTitle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/recordButton" />
+                <TextView
+                    android:id="@+id/controlsTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Controles"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/recordButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="GRAVAR"
-                app:layout_constraintTop_toBottomOf="@id/controlsTitle"
-                app:layout_constraintStart_toEndOf="@id/ecoButton"
-                app:layout_constraintEnd_toEndOf="parent" />
+                <Button
+                    android:id="@+id/ecoButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ECO OFF"
+                    app:layout_constraintEnd_toStartOf="@id/recordButton"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/controlsTitle" />
 
-            <TextView
-                android:id="@+id/volumeLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Volume do Eco:"
-                android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/ecoButton"
-                app:layout_constraintStart_toStartOf="parent" />
+                <Button
+                    android:id="@+id/recordButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GRAVAR"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/ecoButton"
+                    app:layout_constraintTop_toBottomOf="@id/controlsTitle" />
 
-            <SeekBar
-                android:id="@+id/volumeSeekBar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:max="100"
-                android:progress="50"
-                app:layout_constraintTop_toBottomOf="@id/volumeLabel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                <TextView
+                    android:id="@+id/volumeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Volume do Eco:"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/ecoButton" />
 
-            <TextView
-                android:id="@+id/delayLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delay do Eco:"
-                android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/volumeSeekBar"
-                app:layout_constraintStart_toStartOf="parent" />
+                <TextView
+                    android:id="@+id/volumeValueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-36dp"
+                    android:text="50%"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintEnd_toEndOf="@id/volumeSeekBar"
+                    app:layout_constraintTop_toBottomOf="@id/volumeSeekBar" />
 
-            <SeekBar
-                android:id="@+id/delaySeekBar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:max="100"
-                android:progress="50"
-                app:layout_constraintTop_toBottomOf="@id/delayLabel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                <SeekBar
+                    android:id="@+id/volumeSeekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="50"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/volumeLabel" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/delayLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delay do Eco:"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/volumeSeekBar" />
+
+                <TextView
+                    android:id="@+id/delayValueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-36dp"
+                    android:text="500ms"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintEnd_toEndOf="@id/delaySeekBar"
+                    app:layout_constraintTop_toBottomOf="@id/delaySeekBar" />
+
+                <SeekBar
+                    android:id="@+id/delaySeekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="50"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/delayLabel" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_efeitos2"
+    android:contentDescription="MENU"
+    android:backgroundTint="@color/colorAccent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+
+
 
 
     <Button

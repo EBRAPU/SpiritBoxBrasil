@@ -52,4 +52,8 @@ dependencies {
 
     // Adicione a dependência do NotificationCompat
     implementation("androidx.core:core:1.9.0") // Use a versão mais recente disponível
+
+    implementation("androidx.drawerlayout:drawerlayout:1.1.1")
+    implementation("com.google.android.material:material:1.4.0")
+    implementation("com.google.android.material:material:1.9.0")
 }

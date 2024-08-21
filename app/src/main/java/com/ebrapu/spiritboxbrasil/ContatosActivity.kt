@@ -32,7 +32,12 @@ import androidx.core.view.WindowInsetsCompat
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.animation.TranslateAnimation
+import android.widget.ImageButton
 import android.widget.SeekBar
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.IOException
 import kotlin.random.Random
@@ -52,8 +57,8 @@ class ContatosActivity : AppCompatActivity() {
     private var isRecording = false
     private var outputUri: Uri? = null
 
-    private val maxMaleFiles = 4695
-    private val maxFemaleFiles = 4677
+    private val maxMaleFiles = 2207
+    private val maxFemaleFiles = 2290
     private val maxFemaleFiles2 = 4410
     private val maxMaleFiles2 = 4000
     // Definindo as novas variáveis
@@ -86,6 +91,14 @@ class ContatosActivity : AppCompatActivity() {
     private lateinit var audioRecord: AudioRecord
     private lateinit var audioTrack: AudioTrack
 
+    private lateinit var volumeValueText: TextView
+    private lateinit var delayValueText: TextView
+
+    private lateinit var ecoControlsContainer: View
+    private var isEcoControlsVisible = false
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,12 +110,27 @@ class ContatosActivity : AppCompatActivity() {
             insets
         }
 
+        // Inicialize o ecoControlsContainer
+        ecoControlsContainer = findViewById(R.id.ecoControlsContainer)
+
+        // Configure o FloatingActionButton
+        val fabMenu: FloatingActionButton = findViewById(R.id.fabMenu)
+        fabMenu.setOnClickListener {
+            toggleEcoControls()
+        }
+
+        volumeValueText = findViewById(R.id.volumeValueText)
+        delayValueText = findViewById(R.id.delayValueText)
+
+
         val volumeSeekBar: SeekBar = findViewById(R.id.volumeSeekBar)
         val delaySeekBar: SeekBar = findViewById(R.id.delaySeekBar)
 
         volumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                volumeFactorAtomic.set(progress / 100f)
+                val volumeFactor = progress / 100f
+                volumeFactorAtomic.set(volumeFactor)
+                volumeValueText.text = "${progress}%"
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -110,7 +138,9 @@ class ContatosActivity : AppCompatActivity() {
 
         delaySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                delayBufferSize.set(44100 * progress / 1000)
+                val delayMs = progress * 10
+                delayBufferSize.set(44100 * delayMs / 1000)
+                delayValueText.text = "${delayMs}ms"
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -272,6 +302,51 @@ class ContatosActivity : AppCompatActivity() {
 
         // Verificar permissões ao iniciar a atividade
         checkPermissions()
+
+        loadSavedState()
+
+    }
+
+    private fun toggleEcoControls() {
+        if (isEcoControlsVisible) {
+            hideEcoControls()
+        } else {
+            showEcoControls()
+        }
+    }
+
+    private fun showEcoControls() {
+        ecoControlsContainer.visibility = View.VISIBLE
+        val animation = TranslateAnimation(
+            0f, 0f, ecoControlsContainer.height.toFloat(), 0f
+        ).apply {
+            duration = 300
+            fillAfter = true
+        }
+        ecoControlsContainer.startAnimation(animation)
+        isEcoControlsVisible = true
+    }
+
+    private fun hideEcoControls() {
+        val animation = TranslateAnimation(
+            0f, 0f, 0f, ecoControlsContainer.height.toFloat()
+        ).apply {
+            duration = 300
+            fillAfter = true
+        }
+        ecoControlsContainer.startAnimation(animation)
+        ecoControlsContainer.postDelayed({
+            ecoControlsContainer.visibility = View.GONE
+        }, 300)
+        isEcoControlsVisible = false
+    }
+
+
+
+
+    override fun onPause() {
+        super.onPause()
+        saveState()
     }
 
     private fun startRecording() {
@@ -557,6 +632,71 @@ class ContatosActivity : AppCompatActivity() {
             readIndex = (readIndex + 1) % size
             return value
         }
+    }
+
+    private fun saveState() {
+        val sharedPreferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("isPlaying1", isPlaying1)
+        editor.putBoolean("isPlaying2", isPlaying2)
+        editor.putFloat("playbackSpeed1", playbackSpeed1)
+        editor.putFloat("playbackSpeed2", playbackSpeed2)
+        editor.putBoolean("isEcoOn", isEcoOn.get())
+        editor.putInt("volumeFactor", (volumeFactorAtomic.get() * 100).toInt())
+        editor.putInt("delayBufferSize", delayBufferSize.get() * 1000 / 44100)
+        editor.putInt("genderSpinner1", genderSpinner1.selectedItemPosition)
+        editor.putInt("genderSpinner2", genderSpinner2.selectedItemPosition)
+        editor.apply()
+    }
+
+
+    private fun loadSavedState() {
+        val sharedPreferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        isPlaying1 = sharedPreferences.getBoolean("isPlaying1", false)
+        isPlaying2 = sharedPreferences.getBoolean("isPlaying2", false)
+        playbackSpeed1 = sharedPreferences.getFloat("playbackSpeed1", 0.70f)
+        playbackSpeed2 = sharedPreferences.getFloat("playbackSpeed2", 0.70f)
+        isEcoOn.set(sharedPreferences.getBoolean("isEcoOn", false))
+        volumeFactorAtomic.set(sharedPreferences.getInt("volumeFactor", 50) / 100f)
+        delayBufferSize.set(sharedPreferences.getInt("delayBufferSize", 100) * 44100 / 1000)
+        genderSpinner1.setSelection(sharedPreferences.getInt("genderSpinner1", 0))
+        genderSpinner2.setSelection(sharedPreferences.getInt("genderSpinner2", 0))
+
+        // Atualizar a interface do usuário
+        updateSpeedTextView()
+        updateButtonsVisibility()
+        updateEcoButton()
+        updateSeekBars()
+
+        // Reiniciar a reprodução se necessário
+        if (isPlaying1) playRandomAudio(true)
+        if (isPlaying2) playRandomAudio(false)
+    }
+
+    private fun updateButtonsVisibility() {
+        findViewById<Button>(R.id.conectarButton1).visibility = if (isPlaying1) View.GONE else View.VISIBLE
+        findViewById<Button>(R.id.desconectarButton1).visibility = if (isPlaying1) View.VISIBLE else View.GONE
+        findViewById<Button>(R.id.conectarButton2).visibility = if (isPlaying2) View.GONE else View.VISIBLE
+        findViewById<Button>(R.id.desconectarButton2).visibility = if (isPlaying2) View.VISIBLE else View.GONE
+    }
+
+    private fun updateEcoButton() {
+        val ecoButton: Button = findViewById(R.id.ecoButton)
+        ecoButton.text = if (isEcoOn.get()) "ECO ON" else "ECO OFF"
+        if (isEcoOn.get()) startEcho() else stopEcho()
+    }
+
+    private fun updateSeekBars() {
+        val volumeSeekBar: SeekBar = findViewById(R.id.volumeSeekBar)
+        val delaySeekBar: SeekBar = findViewById(R.id.delaySeekBar)
+
+        val volumeProgress = (volumeFactorAtomic.get() * 100).toInt()
+        volumeSeekBar.progress = volumeProgress
+        volumeValueText.text = "${volumeProgress}%"
+
+        val delayProgress = delayBufferSize.get() * 1000 / 44100
+        delaySeekBar.progress = delayProgress / 10
+        delayValueText.text = "${delayProgress}ms"
     }
 
 
